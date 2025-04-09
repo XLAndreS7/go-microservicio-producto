@@ -1,0 +1,30 @@
+# Ignorar binarios compilados
+main
+
+# Reportes de cobertura
+coverage.out
+
+# Archivos temporales
+*.log
+*.out
+*.test
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Git y versiones
+.git
+.gitignore
+
+# Archivos ZIP o backups
+*.zip
+*.tar.gz
+*.gz
+
+# Evitar copiar el Dockerfile y docker-compose si no se necesitan dentro del contenedor
+Dockerfile
+docker-compose.yml
+
+# (Opcional) Ignorar .env si no lo usas dentro del contenedor
+# .env
