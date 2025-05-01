@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  security-events: write
+  contents: read
+
 jobs:
   build-scan-and-push:
     runs-on: ubuntu-latest
@@ -33,8 +37,8 @@ jobs:
         run: |
           docker build -t xlandres/producto-service:latest -t xlandres/producto-service:${{ env.VERSION }} .
 
-      - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@v0.11.2
+      - name: Scan image with Trivy (table format)
+        uses: aquasecurity/trivy-action@v0.30.0
         with:
           image-ref: 'xlandres/producto-service:latest'
           format: 'table'
@@ -42,9 +46,22 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
 
+      - name: Scan image with Trivy (SARIF format)
+        uses: aquasecurity/trivy-action@v0.30.0
+        with:
+          image-ref: 'xlandres/producto-service:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+
+      - name: Upload SARIF report to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: trivy-results.sarif
+
       - name: Push Docker image
         if: success()
         run: |
           docker push xlandres/producto-service:latest
           docker push xlandres/producto-service:${{ env.VERSION }}
-
