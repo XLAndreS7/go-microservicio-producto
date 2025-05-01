@@ -29,32 +29,22 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Version is $VERSION"
 
-      - name: Build Docker image (without push)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true
-          tags: |
-            xlandres/producto-service:latest
-            xlandres/producto-service:${{ env.VERSION }}
+      - name: Build Docker image
+        run: |
+          docker build -t xlandres/producto-service:latest -t xlandres/producto-service:${{ env.VERSION }} .
 
-      - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@v0.16.0
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@v0.11.2
         with:
-          image-ref: xlandres/producto-service:latest
-          format: table
-          exit-code: 1
+          image-ref: 'xlandres/producto-service:latest'
+          format: 'table'
+          exit-code: '1'
           ignore-unfixed: true
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
+          vuln-type: 'os,library'
 
       - name: Push Docker image
-        if: success() # solo si el escaneo pasó
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            xlandres/producto-service:latest
-            xlandres/producto-service:${{ env.VERSION }}
+        if: success()
+        run: |
+          docker push xlandres/producto-service:latest
+          docker push xlandres/producto-service:${{ env.VERSION }}
 
