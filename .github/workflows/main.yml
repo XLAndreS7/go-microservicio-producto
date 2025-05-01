@@ -17,6 +17,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.2
+
+      - name: Update golang.org/x/crypto to v0.35.0
+        run: |
+          go get golang.org/x/crypto@v0.35.0
+          go mod tidy
+
+      - name: Commit updated go.mod and go.sum
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add go.mod go.sum
+          git commit -m "chore: update golang.org/x/crypto to fix vulnerabilities" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -65,3 +83,4 @@ jobs:
         run: |
           docker push xlandres/producto-service:latest
           docker push xlandres/producto-service:${{ env.VERSION }}
+
