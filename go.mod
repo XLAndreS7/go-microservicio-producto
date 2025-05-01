@@ -1,6 +1,6 @@
 module go-microservicio-producto
 
-go 1.22.2
+go 1.23
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
