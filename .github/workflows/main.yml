@@ -78,15 +78,30 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
 
-      - name: Upload SARIF report to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+      # --- Reemplazamos aquí el bloque de subida SARIF ---
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          sarif_file: trivy-results.sarif
+          languages: go
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          output: codeql-results.sarif
+
+      - name: Upload SARIF report to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: codeql-results.sarif
 
       - name: Push Docker image
         if: success()
         run: |
           docker push xlandres/producto-service:latest
           docker push xlandres/producto-service:${{ env.VERSION }}
+
 
 
