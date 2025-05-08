@@ -67,8 +67,7 @@ jobs:
             .
 
       - name: Run integration tests
-        run: |
-          docker run --rm xlandres/producto-service:latest go test -v ./tests/integration
+        run: go test -v ./tests/integration
 
       - name: Run coverage
         run: |
