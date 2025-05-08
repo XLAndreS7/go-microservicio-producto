@@ -1,4 +1,5 @@
-# Build, Scan, and Push Docker Image for producto-service
+name: Build, Test, and Push Docker Image for producto-service
+
 on:
   push:
     branches:
@@ -9,14 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  build-scan-and-push:
+  build-test-and-push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-           fetch-depth: 0
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -25,6 +26,9 @@ jobs:
 
       - name: Verify Go version
         run: go version
+
+      - name: Run unit tests
+        run: go test -v ./... -short
 
       - name: Update golang.org/x/crypto to v0.35.0
         run: |
@@ -62,6 +66,15 @@ jobs:
             -t xlandres/producto-service:${{ env.VERSION }} \
             .
 
+      - name: Run integration tests
+        run: |
+          docker run --rm xlandres/producto-service:latest go test -v ./tests/integration
+
+      - name: Run coverage
+        run: |
+          go test -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out
+
       - name: Scan image with Trivy (table format)
         uses: aquasecurity/trivy-action@0.11.2
         with:
@@ -80,7 +93,6 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
 
-      # --- Reemplazamos aquí el bloque de subida SARIF ---
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -104,6 +116,7 @@ jobs:
         run: |
           docker push xlandres/producto-service:latest
           docker push xlandres/producto-service:${{ env.VERSION }}
+
 
 
 
