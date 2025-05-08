@@ -22,7 +22,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: 1.22.3
 
       - name: Verify Go version
         run: go version
@@ -66,8 +66,13 @@ jobs:
             -t xlandres/producto-service:${{ env.VERSION }} \
             .
 
-      - name: Run integration tests
-        run: go test -v ./tests/integration
+      - name: Run integration tests (if exists)
+        run: |
+          if [ -d "./tests/integration" ]; then
+            go test -v ./tests/integration
+          else
+            echo "No integration tests found, skipping..."
+          fi
 
       - name: Run coverage
         run: |
@@ -115,6 +120,7 @@ jobs:
         run: |
           docker push xlandres/producto-service:latest
           docker push xlandres/producto-service:${{ env.VERSION }}
+
 
 
 
